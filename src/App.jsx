@@ -3,6 +3,8 @@ import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import Navbar from "./components/Navbar.jsx";
 import CreateRestaurant from "./pages/CreateRestaurant.jsx";
 import EditRestaurant from "./pages/EditRestaurant.jsx";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
 
 const ProtectedRoute = ({ user, children }) => {
   if (!user) return <Navigate to="/login" replace />;
@@ -37,6 +39,15 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/login"
+              element={user ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />}
+            />
+            <Route
+              path="/register"
+              element={user ? <Navigate to="/" replace /> : <Register onLogin={handleLogin} />}
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
 
