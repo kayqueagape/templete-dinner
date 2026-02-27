@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
+import RestaurantDetails from "./pages/RestaurantDetails.jsx";
 import CreateRestaurant from "./pages/CreateRestaurant.jsx";
 import EditRestaurant from "./pages/EditRestaurant.jsx";
 import Login from "./pages/Login.jsx";
