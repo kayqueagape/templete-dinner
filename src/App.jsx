@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
+import Home from "./pages/Home.jsx";
 import RestaurantDetails from "./pages/RestaurantDetails.jsx";
 import CreateRestaurant from "./pages/CreateRestaurant.jsx";
 import EditRestaurant from "./pages/EditRestaurant.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import Users from "./pages/Users.jsx";
 
 const ProtectedRoute = ({ user, children }) => {
   if (!user) return <Navigate to="/login" replace />;
@@ -37,6 +39,14 @@ const App = () => {
               element={
                 <ProtectedRoute user={user}>
                   <CreateRestaurant user={user} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute user={user}>
+                  <Users />
                 </ProtectedRoute>
               }
             />
