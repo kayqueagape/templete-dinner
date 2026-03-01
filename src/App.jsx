@@ -7,6 +7,7 @@ import CreateRestaurant from "./pages/CreateRestaurant.jsx";
 import EditRestaurant from "./pages/EditRestaurant.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import Profile from "./pages/Profile.jsx";
 import Users from "./pages/Users.jsx";
 
 const ProtectedRoute = ({ user, children }) => {
@@ -39,6 +40,14 @@ const App = () => {
               element={
                 <ProtectedRoute user={user}>
                   <CreateRestaurant user={user} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute user={user}>
+                  <Profile user={user} />
                 </ProtectedRoute>
               }
             />
