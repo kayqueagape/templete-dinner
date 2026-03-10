@@ -9,6 +9,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Profile from "./pages/Profile.jsx";
 import Users from "./pages/Users.jsx";
+import { api } from "./services/api.js";
 
 const ProtectedRoute = ({ user, children }) => {
   if (!user) return <Navigate to="/login" replace />;
@@ -16,10 +17,47 @@ const ProtectedRoute = ({ user, children }) => {
 };
 
 const App = () => {
-  const [user] = useState(null);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const userData = await api.auth.getProfile();
+          setUser(userData);
+        } catch {
+          localStorage.removeItem("token");
+        }
+      }
+      setLoading(false);
+    };
+    checkAuth();
+  }, []);
+
+  const handleLogin = (token, userData) => {
+    localStorage.setItem("token", token);
+    setUser(userData);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="spinner w-10 h-10 mx-auto mb-4"></div>
+          <p className="text-muted text-sm">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-
     <Router>
       <div className="min-h-screen flex flex-col">
         <Navbar user={user} onLogout={handleLogout} />
@@ -71,6 +109,17 @@ const App = () => {
           </Routes>
         </main>
 
+        <footer style={{ borderTop: "1px solid var(--color-border)", background: "var(--color-surface)" }} className="py-8 mt-16">
+          <div className="container-main">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xl" aria-hidden>🍽️</span>
+                <span className="font-serif text-lg" style={{ color: "var(--color-accent)" }}>GourmetGuide</span>
+              </div>
+              <p className="text-muted text-sm">© 2025 GourmetGuide · All rights reserved</p>
+            </div>
+          </div>
+        </footer>
       </div>
     </Router>
   );
