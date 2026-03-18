@@ -157,7 +157,6 @@ const Home = ({ user }) => {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-24 animate-fade-in">
-            <p className="text-5xl mb-4">🍽️</p>
             <p className="font-serif text-xl mb-2" style={{ color: "var(--color-text)" }}>No results</p>
             <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Try searching with other terms or categories</p>
           </div>
