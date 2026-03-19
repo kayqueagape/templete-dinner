@@ -1,102 +1,123 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { api } from "../services/api.js";
 
-const Profile = ({ user }) => {
-  const [profile, setProfile] = useState(user);
+const Login = ({ onLogin }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPwd, setShowPwd] = useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const data = await api.auth.getProfile();
-        setProfile(data);
-      } catch {
-        setError("Error loading profile.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="spinner w-10 h-10 mb-4"></div>
-        <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Loading profile...</p>
-      </div>
-    );
-  }
-
-  const displayName = profile?.name || user?.name || "User";
-  const displayEmail = profile?.email || user?.email || "";
-  const initial = displayName.charAt(0).toUpperCase();
-  const memberSince = profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString("pt-BR", { month: "long", year: "numeric" }) : "Member";
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const res = await api.auth.login({ email, password });
+      onLogin(res.token, res.user);
+      navigate("/", { replace: true });
+      // eslint-disable-next-line
+    } catch (err) {
+      setError("Invalid credentials. Please check your email and password..");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="container-narrow py-10">
-      <div className="animate-slide-up">
-        <h1 className="font-serif text-3xl mb-8" style={{ color: "var(--color-text)" }}>My Profile</h1>
-
-        {error && <div className="alert-error mb-6">{error}</div>}
-
-        <div className="card p-8 mb-6 flex flex-col sm:flex-row items-center sm:items-start gap-6">
-          <div className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold shrink-0"
-            style={{ background: "rgba(212,168,83,0.15)", color: "var(--color-accent)", border: "2px solid rgba(212,168,83,0.3)" }}>
-            {initial}
-          </div>
-          <div className="text-center sm:text-left flex-1">
-            <h2 className="font-serif text-2xl mb-1" style={{ color: "var(--color-text)" }}>{displayName}</h2>
-            <p className="text-sm mb-2" style={{ color: "var(--color-text-muted)" }}>{displayEmail}</p>
-            <span className="badge text-xs">{memberSince}</span>
-          </div>
+    <div className="min-h-[calc(100vh-120px)] flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md animate-scale-in">
+        <div className="text-center mb-10">
+          <span className="text-4xl block mb-4">🍽️</span>
+          <h1 className="font-serif text-3xl md:text-4xl mb-2" style={{ color: "var(--color-text)" }}>Welcome back</h1>
+          <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>Sign in to continue exploring</p>
         </div>
-        
-        <div className="card p-6 mb-6">
-          <h3 className="font-serif text-lg mb-4" style={{ color: "var(--color-text)" }}>Account information</h3>
-          <div className="space-y-3">
-            {[
-              { label: "Name", value: displayName },
-              { label: "E-mail", value: displayEmail },
-              { label: "Account ID", value: profile?.id || profile?._id || "—" },
-              { label: "Member since", value: memberSince },
-            ].map(({ label, value }) => (
-              <div key={label} className="flex flex-col sm:flex-row sm:items-center gap-1 py-3" style={{ borderBottom: "1px solid var(--color-border)" }}>
-                <span className="text-xs font-semibold uppercase tracking-wider w-36 shrink-0" style={{ color: "var(--color-text-muted)" }}>{label}</span>
-                <span className="text-sm" style={{ color: "var(--color-text)" }}>{value}</span>
+
+        <div className="card p-6 md:p-8">
+          {error && (
+            <div className="alert-error mb-5 text-sm">
+              <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--color-text-muted)" }}>
+                E-mail
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="your@email.com"
+                required
+                className="input-field"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+                autoComplete="email"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--color-text-muted)" }}>
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPwd ? "text" : "password"}
+                  placeholder="••••••••"
+                  required
+                  className="input-field pr-12"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPwd(!showPwd)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
+                  style={{ color: "var(--color-text-muted)" }}
+                >
+                  {showPwd ? (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
               </div>
-            ))}
-          </div>
-        </div>
-        <div className="card p-6">
-          <h3 className="font-serif text-lg mb-4" style={{ color: "var(--color-text)" }}>Quick actions</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Link to="/create-restaurant" className="btn-secondary py-3 justify-center">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Add restaurant
+            </div>
+
+            <button type="submit" className="btn-primary w-full py-3 mt-2" disabled={loading}>
+              {loading ? (
+                <><div className="spinner w-4 h-4"></div> logging in...</>
+              ) : "Login"}
+            </button>
+          </form>
+
+          <div className="divider my-6"></div>
+
+          <p className="text-center text-sm" style={{ color: "var(--color-text-muted)" }}>
+            You do not have an account?{" "}
+            <Link to="/register" className="font-semibold transition-colors" style={{ color: "var(--color-accent)" }}>
+              Signup for free
             </Link>
-            <Link to="/users" className="btn-secondary py-3 justify-center">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              View users
-            </Link>
-            <Link to="/" className="btn-secondary py-3 justify-center">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              Explore restaurants
-            </Link>
-          </div>
+          </p>
         </div>
       </div>
     </div>
   );
 };
 
-export default Profile;
+export default Login;

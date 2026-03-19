@@ -45,8 +45,8 @@ const Home = ({ user }) => {
       <section className="relative overflow-hidden py-20 md:py-28">
         <div className="absolute inset-0">
           <img
-            src=""
-            alt=""
+            src="/upscalemedia-transformed2.png"
+            alt="table with food "
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(15,14,12,0.93) 0%, rgba(15,14,12,0.78) 50%, rgba(26,18,9,0.92) 100%)" }}></div>
